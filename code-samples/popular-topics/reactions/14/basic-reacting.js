@@ -1,7 +1,7 @@
-const { Client, Intents } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions],
 });
 
 client.once('ready', () => {
@@ -9,18 +9,18 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 
 	if (commandName === 'react') {
-		const message = await interaction.reply('You can react with Unicode emojis!', { fetchReply: true });
+		const message = await interaction.reply({ content: 'You can react with Unicode emojis!', fetchReply: true });
 		message.react('😄');
 	} else if (commandName === 'react-custom') {
-		const message = await interaction.reply('You can react with custom emojis!', { fetchReply: true });
+		const message = await interaction.reply({ content: 'You can react with custom emojis!', fetchReply: true });
 		message.react('123456789012345678');
 	} else if (commandName === 'fruits') {
-		const message = await interaction.reply('Reacting with fruits!', { fetchReply: true });
+		const message = await interaction.reply({ content: 'Reacting with fruits!', fetchReply: true });
 		message.react('🍎')
 			.then(() => message.react('🍊'))
 			.then(() => message.react('🍇'))

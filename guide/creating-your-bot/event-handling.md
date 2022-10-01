@@ -5,10 +5,10 @@ Node.js uses an event-driven architecture, making it possible to execute code wh
 Here's the base code we'll be using:
 
 ```js
-const { Client, Intents } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.once('ready', c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
@@ -29,8 +29,10 @@ Your project directory should look something like this:
 
 ```:no-line-numbers
 discord-bot/
+├── commands
 ├── node_modules
 ├── config.json
+├── deploy-commands.js
 ├── index.js
 ├── package-lock.json
 └── package.json
@@ -71,12 +73,14 @@ Next, let's write the code for dynamically retrieving all the event files in the
 `fs.readdirSync().filter()` returns an array of all the file names in the given directory and filters for only `.js` files, i.e. `['ready.js', 'interactionCreate.js']`.
 
 ```js {3,5-12}
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {
-	const event = require(`./events/${file}`);
+	const filePath = path.join(eventsPath, file);
+	const event = require(filePath);
 	if (event.once) {
 		client.once(event.name, (...args) => event.execute(...args));
 	} else {

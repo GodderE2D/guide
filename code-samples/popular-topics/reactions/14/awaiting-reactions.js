@@ -1,7 +1,7 @@
-const { Client, Intents } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions],
 });
 
 client.once('ready', () => {
@@ -9,10 +9,10 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	if (interaction.commandName === 'react-await') {
-		const message = await interaction.reply('Awaiting emojis...', { fetchReply: true });
+		const message = await interaction.reply({ content: 'Awaiting emojis...', fetchReply: true });
 		message.react('👍').then(() => message.react('👎'));
 
 		const filter = (reaction, user) => {

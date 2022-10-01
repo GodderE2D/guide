@@ -21,7 +21,7 @@
 				:command="true"
 			>upgrade</DiscordInteraction>
 		</template>
-		discord.js v13 has released and the guide has been updated!
+		discord.js v14 has released and the guide has been updated!
 		<span class="emoji-container">
 			<img class="emoji-image" title="tada" src="https://twemoji.maxcdn.com/v/13.1.0/72x72/1f389.png" alt="" />
 		</span>
@@ -39,14 +39,12 @@
 
 ## Pages
 
-All content has been updated to use discord.js v13 syntax. The v12 version of the guide can be found at [https://v12.discordjs.guide/](https://v12.discordjs.guide/).
+All content has been updated to use discord.js v14 syntax. The v13 version of the guide can be found at [https://v13.discordjs.guide/](https://v13.discordjs.guide/).
 
 ### New
 
-- [Updating from v12 to v13](/additional-info/changes-in-v13.md): A list of the changes from discord.js v12 to v13
-- [Registering slash commands](/interactions/registering-slash-commands.md): In-depth steps on registering slash commands
-- [Replying to slash commands](/interactions/replying-to-slash-commands.md): The various ways to reply to slash commands
-- [Slash command permissions](/interactions/slash-command-permissions.md): Restricting slash commands per user or per role
+- [Updating from v13 to v14](/additional-info/changes-in-v14.md): A list of the changes from discord.js v13 to v14
+- [Slash commands](/interactions/slash-commands.md): Registering, replying to slash commands and permissions
 - [Buttons](/interactions/buttons.md): Building, sending, and receiving buttons
 - [Select menus](/interactions/select-menus.md): Building, sending, and receiving select menus
 - [Threads](/popular-topics/threads.md): Creating and managing threads
@@ -54,18 +52,18 @@ All content has been updated to use discord.js v13 syntax. The v12 version of th
 
 ### Updated
 
-- Commando: Removed, to be replaced with a guide on [Sapphire](https://github.com/discordjs/guide/pull/711)
+- Commando: Replaced with [Sapphire](https://sapphirejs.dev/docs/Guide/getting-started/getting-started-with-sapphire)
 - [Voice](/voice/): Rewritten to use the [`@discordjs/voice`](https://github.com/discordjs/discord.js/tree/main/packages/voice) package
 - [Command handling](/creating-your-bot/command-handling.md/): Updated to use slash commands
 	- Obsolete sections removed
 - `client.on('message')` snippets updated to `client.on('interactionCreate')`
-	- [Message content will become a new privileged intent in April 2022](https://support-dev.discord.com/hc/en-us/articles/4404772028055)
+	- [Message content will become a new privileged intent on August 31, 2022](https://support-dev.discord.com/hc/en-us/articles/4404772028055)
 
 <DiscordMessages>
 	<DiscordMessage profile="bot">
 		Thank you to all of those that contributed to the development of discord.js and the guide!
 		<span class="emoji-container">
-			<img class="emoji-image" title="heart" src="https://twemoji.maxcdn.com/v/13.1.0/72x72/2764.png" alt="" />
+			<img class="emoji-image" title="heart" src="https://twemoji.maxcdn.com/v/14.0.0/72x72/2764.png" alt="" />
 		</span>
 	</DiscordMessage>
 </DiscordMessages>

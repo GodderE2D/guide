@@ -1,8 +1,8 @@
 const { Op } = require('sequelize');
-const { Collection, Client, Formatters, Intents } = require('discord.js');
+const { Collection, Client, Formatters, GatewayIntentBits } = require('discord.js');
 const { Users, CurrencyShop } = require('./dbObjects.js');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
 const currency = new Collection();
 
 /*
@@ -11,8 +11,7 @@ const currency = new Collection();
  */
 
 Reflect.defineProperty(currency, 'add', {
-	/* eslint-disable-next-line func-name-matching */
-	value: async function add(id, amount) {
+	value: async (id, amount) => {
 		const user = currency.get(id);
 
 		if (user) {
@@ -28,8 +27,7 @@ Reflect.defineProperty(currency, 'add', {
 });
 
 Reflect.defineProperty(currency, 'getBalance', {
-	/* eslint-disable-next-line func-name-matching */
-	value: function getBalance(id) {
+	value: id => {
 		const user = currency.get(id);
 		return user ? user.balance : 0;
 	},
@@ -48,7 +46,7 @@ client.on('messageCreate', async message => {
 });
 
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 

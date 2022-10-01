@@ -182,8 +182,8 @@ module.exports = logger;
 ```
 
 ```js
-const { Client, Intents } = require('discord.js');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const { Client, GatewayIntentBits } = require('discord.js');
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const logger = require('./logger');
 
 client.on('ready', () => logger.info('The bot is online'));
@@ -208,7 +208,7 @@ We recommend you set `pino-pretty` up in a package script in your `package.json`
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node .",
 		"lint": "eslint .",
-		"dev": "node . | pino-pretty -i pid,hostname -t yyyy-mm-dd HH:MM:ss"
+		"dev": "node . | pino-pretty -i pid,hostname -t 'yyyy-mm-dd HH:MM:ss'"
 	},
 	"keywords": [],
 	"author": "",

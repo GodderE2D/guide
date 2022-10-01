@@ -2,10 +2,10 @@
 
 ## Legend
 
-* `client` is a placeholder for the <DocsLink path="class/Client" /> object, such as `const client = new Client({ intents: [Intents.FLAGS.GUILDS] });`.
+* `client` is a placeholder for the <DocsLink path="class/Client" /> object, such as `const client = new Client({ intents: [GatewayIntentBits.Guilds] });`.
 * `interaction` is a placeholder for the <DocsLink path="class/Interaction" /> object, such as `client.on('interactionCreate', interaction => { ... });`.
 * `guild` is a placeholder for the <DocsLink path="class/Guild" /> object, such as `interaction.guild` or `client.guilds.cache.get('id')`.
-* `voiceChannel` is a placeholder for the <DocsLink path="class/VoiceChannel" /> object, such as `message.member.voice.channel`
+* `voiceChannel` is a placeholder for the <DocsLink path="class/VoiceChannel" /> object, such as `interaction.member.voice.channel`
 
 For a more detailed explanation of the notations commonly used in this guide, the docs, and the support server, see [here](/additional-info/notation.md).
 
@@ -21,15 +21,15 @@ guild.members.ban(user);
 ### How do I unban a user?
 
 ```js
-const id = interaction.options.get('target')?.value;
-guild.members.unban(id);
+const user = interaction.options.getUser('target');
+guild.members.unban(user);
 ```
 
 ::: tip
-Because you cannot ping a user who isn't in the server, you have to pass in the user id. To do this, we use a <DocsLink path="typedef/CommandInteractionOption" />. See [here](/interactions/replying-to-slash-commands.html#parsing-options) for more information on this topic.
+Discord validates and resolves user ids for users not on the server in user slash command options. To retrieve and use the full structure from the resulting interaction, you can use the <DocsLink path="class/CommandInteractionOptionResolver?scrollTo=getUser" /> method.
 :::
 
-### How do I kick a user?
+### How do I kick a guild member?
 
 ```js
 const member = interaction.options.getMember('target');
@@ -84,9 +84,11 @@ client.user.setActivity('activity');
 ### How do I set my status to "Watching/Listening to/Competing in ..."?
 
 ```js
-client.user.setActivity('activity', { type: 'WATCHING' });
-client.user.setActivity('activity', { type: 'LISTENING' });
-client.user.setActivity('activity', { type: 'COMPETING' });
+const { ActivityType } = require('discord.js');
+
+client.user.setActivity('activity', { type: ActivityType.Watching });
+client.user.setActivity('activity', { type: ActivityType.Listening });
+client.user.setActivity('activity', { type: ActivityType.Competing });
 ```
 
 ::: tip
@@ -117,6 +119,17 @@ const channel = client.channels.cache.get('id');
 channel.send('content');
 ```
 
+### How do I create a post in a forum channel?
+
+::: tip
+Currently, the only way to get tag ids is programmatically through <DocsLink path="class/ForumChannel?scrollTo=availableTags" />.
+:::
+
+```js
+const channel = client.channels.cache.get('id');
+channel.threads.create({ name: 'Post name', message: { content: 'Message content' }, appliedTags: ['tagID', 'anotherTagID'] });
+```
+
 ### How do I DM a specific user?
 
 <!-- eslint-skip -->
@@ -137,7 +150,7 @@ If you want to DM the user who sent the interaction, you can use `interaction.us
 ```js
 const user = interaction.options.getUser('target');
 await interaction.reply(`Hi, ${user}.`);
-await interaction.followUp('Hi, <@user id>.');
+await interaction.followUp(`Hi, <@${user.id}>.`);
 ```
 
 ::: tip
@@ -245,15 +258,15 @@ A User represents a global Discord user, and a GuildMember represents a Discord 
 
 ```js
 // First use guild.members.fetch to make sure all members are cached
-guild.members.fetch().then(fetchedMembers => {
-	const totalOnline = fetchedMembers.filter(member => member.presence.status === 'online');
+guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+	const totalOnline = fetchedMembers.filter(member => member.presence?.status === 'online');
 	// Now you have a collection with all online member objects in the totalOnline variable
 	console.log(`There are currently ${totalOnline.size} members online in this guild!`);
 });
 ```
 
 ::: warning
-This only works correctly if you have the `GUILD_PRESENCES` intent enabled for your application and client.
+This only works correctly if you have the `GuildPresences` intent enabled for your application and client.
 If you want to learn more about intents, check out [this dedicated guide on intents](/popular-topics/intents.md)!
 :::
 
@@ -295,91 +308,6 @@ The second, **Roundtrip Latency**, describes the amount of time a full API round
 const sent = await interaction.reply({ content: 'Pinging...', fetchReply: true });
 interaction.editReply(`Roundtrip latency: ${sent.createdTimestamp - interaction.createdTimestamp}ms`);
 ```
-
-### How do I play music from YouTube?
-
-For this to work, you need to have `ytdl-core` and `@discordjs/voice` installed.
-
-:::: code-group
-::: code-group-item npm
-```sh:no-line-numbers
-npm install ytdl-core @discordjs/voice
-```
-:::
-::: code-group-item yarn
-```sh:no-line-numbers
-yarn add ytdl-core @discordjs/voice
-```
-:::
-::: code-group-item pnpm
-```sh:no-line-numbers
-pnpm add ytdl-core @discordjs/voice
-```
-:::
-::::
-
-Additionally, you may need the following:
-
-:::: code-group
-::: code-group-item npm
-```sh:no-line-numbers
-npm install --save @discordjs/opus # opus engine (if missing)
-sudo apt-get install ffmpeg # ffmpeg debian/ubuntu
-npm install ffmpeg-static # ffmpeg windows
-```
-:::
-::: code-group-item yarn
-```sh:no-line-numbers
-yarn add --save @discordjs/opus # opus engine (if missing)
-sudo apt-get install ffmpeg # ffmpeg debian/ubuntu
-yarn add ffmpeg-static # ffmpeg windows
-```
-:::
-::: code-group-item pnpm
-```sh:no-line-numbers
-pnpm add --save @discordjs/opus # opus engine (if missing)
-sudo apt-get install ffmpeg # ffmpeg debian/ubuntu
-pnpm add ffmpeg-static # ffmpeg windows
-```
-:::
-::::
-
-```js
-const ytdl = require('ytdl-core');
-const {
-	AudioPlayerStatus,
-	StreamType,
-	createAudioPlayer,
-	createAudioResource,
-	joinVoiceChannel,
-} = require('@discordjs/voice');
-
-// ...
-
-const connection = joinVoiceChannel({
-	channelId: voiceChannel.id,
-	guildId: guild.id,
-	adapterCreator: guild.voiceAdapterCreator,
-});
-
-const stream = ytdl('youtube link', { filter: 'audioonly' });
-const resource = createAudioResource(stream, { inputType: StreamType.Arbitrary });
-const player = createAudioPlayer();
-
-player.play(resource);
-connection.subscribe(player);
-
-player.on(AudioPlayerStatus.Idle, () => connection.destroy());
-```
-
-::: tip
-You can learn more about these methods in the [voice section of this guide](/voice)!
-:::
-
-::: warning
-This only works correctly if you have the `GUILD_VOICE_STATES` intent enabled for your application and client.
-If you want to learn more about intents, check out [this dedicated guide on intents](/popular-topics/intents.md)!
-:::
 
 ### Why do some emojis behave weirdly?
 

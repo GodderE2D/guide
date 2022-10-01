@@ -47,6 +47,7 @@ export default {
 			children: [
 				'/creating-your-bot/',
 				'/creating-your-bot/creating-commands.md',
+				'/creating-your-bot/deleting-commands.md',
 				'/creating-your-bot/command-handling/',
 				'/creating-your-bot/event-handling/',
 			],
@@ -54,11 +55,12 @@ export default {
 		{
 			text: 'Interactions',
 			children: [
-				'/interactions/registering-slash-commands.md',
-				'/interactions/replying-to-slash-commands.md',
-				'/interactions/slash-command-permissions.md',
+				'/interactions/slash-commands.md',
 				'/interactions/buttons.md',
 				'/interactions/select-menus.md',
+				'/interactions/autocomplete.md',
+				'/interactions/modals.md',
+				'/interactions/context-menus.md',
 			],
 		},
 		{
@@ -125,6 +127,7 @@ export default {
 				'/additional-info/async-await.md',
 				'/additional-info/rest-api.md',
 				'/additional-info/changes-in-v13.md',
+				'/additional-info/changes-in-v14.md',
 			],
 		},
 	],

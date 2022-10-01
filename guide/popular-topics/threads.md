@@ -14,7 +14,7 @@ Threads introduce a number of new gateway events, which are listed below:
 - <DocsLink path="class/Client?scrollTo=e-threadDelete" />: Emitted whenever a thread is deleted.
 - <DocsLink path="class/Client?scrollTo=e-threadUpdate" />: Emitted whenever a thread is updated (e.g. name change, archive state change, locked state change).
 - <DocsLink path="class/Client?scrollTo=e-threadListSync" />: Emitted whenever the client user gains access to a text or news channel that contains threads.
-- <DocsLink path="class/Client?scrollTo=e-threadMembersUpdate" />: Emitted whenever members are added or removed from a thread. Requires <code>GUILD_MEMBERS</code> privileged intent.
+- <DocsLink path="class/Client?scrollTo=e-threadMembersUpdate" />: Emitted whenever members are added or removed from a thread. Requires <code>GuildMembers</code> privileged intent.
 - <DocsLink path="class/Client?scrollTo=e-threadMemberUpdate" />: Emitted whenever the client user's thread member is updated.
 
 ## Creating and deleting threads
@@ -65,7 +65,7 @@ await thread.leave();
 
 ## Archiving, unarchiving, and locking threads
 
-A thread can be either active or archived. Changing a thread from archived to active is referred to as unarchiving the thread. Threads that have `locked` set to true can only be unarchived by a member with the `MANAGE_THREADS` permission.
+A thread can be either active or archived. Changing a thread from archived to active is referred to as unarchiving the thread. Threads that have `locked` set to true can only be unarchived by a member with the `ManageThreads` permission.
 
 Threads are automatically archived after inactivity. "Activity" is defined as sending a message, unarchiving a thread, or changing the auto-archive time.
 
@@ -128,15 +128,17 @@ The created thread and the message it originated from will share the same ID. Th
 
 Private threads behave similar to Group DMs, but in a Guild. Private threads can only be created on text channels.
 
-To create a private thread, use <DocsLink path="class/ThreadManager?scrollTo=create" type="method" /> and pass in `GUILD_PRIVATE_THREAD` as the `type`:
+To create a private thread, use <DocsLink path="class/ThreadManager?scrollTo=create" type="method" /> and pass in `ChannelType.PrivateThread` as the `type`:
 
 <!-- eslint-skip -->
 
 ```js {4}
+const { ChannelType } = require('discord.js');
+
 const thread = await channel.threads.create({
 	name: 'mod-talk',
 	autoArchiveDuration: 60,
-	type: 'GUILD_PRIVATE_THREAD',
+	type: ChannelType.PrivateThread,
 	reason: 'Needed a separate thread for moderation',
 });
 

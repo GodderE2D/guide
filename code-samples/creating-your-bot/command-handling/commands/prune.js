@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,7 +8,7 @@ module.exports = {
 	async execute(interaction) {
 		const amount = interaction.options.getInteger('amount');
 
-		if (amount <= 1 || amount > 100) {
+		if (amount < 1 || amount > 99) {
 			return interaction.reply({ content: 'You need to input a number between 1 and 99.', ephemeral: true });
 		}
 		await interaction.channel.bulkDelete(amount, true).catch(error => {

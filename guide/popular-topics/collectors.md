@@ -66,7 +66,7 @@ const filter = response => {
 	return item.answers.some(answer => answer.toLowerCase() === response.content.toLowerCase());
 };
 
-interaction.reply(item.question, { fetchReply: true })
+interaction.reply({ content: item.question, fetchReply: true })
 	.then(() => {
 		interaction.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
 			.then(collected => {
@@ -135,7 +135,9 @@ Collecting interactions from message components works similarly to reaction coll
 One important difference to note with interaction collectors is that Discord expects a response to *all* interactions within 3 seconds - even ones that you don't want to collect. For this reason, you may wish to `.deferUpdate()` all interactions in your filter, or not use a filter at all and handle this behavior in the `collect` event.
 
 ```js
-const collector = message.createMessageComponentCollector({ componentType: 'BUTTON', time: 15000 });
+const { ComponentType } = require('discord.js');
+
+const collector = message.createMessageComponentCollector({ componentType: ComponentType.Button, time: 15000 });
 
 collector.on('collect', i => {
 	if (i.user.id === interaction.user.id) {
@@ -157,12 +159,14 @@ As before, this works similarly to the message component collector, except it is
 Unlike other Promise-based collectors, this method will only ever collect one interaction that passes the filter. If no interactions are collected before the time runs out, the Promise will reject. This behavior aligns with Discord's requirement that actions should immediately receive a response. In this example, you will use `.deferUpdate()` on all interactions in the filter.
 
 ```js
+const { ComponentType } = require('discord.js');
+
 const filter = i => {
 	i.deferUpdate();
 	return i.user.id === interaction.user.id;
 };
 
-message.awaitMessageComponent({ filter, componentType: 'SELECT_MENU', time: 60000 })
+message.awaitMessageComponent({ filter, componentType: ComponentType.SelectMenu, time: 60000 })
 	.then(interaction => interaction.editReply(`You selected ${interaction.values.join(', ')}!`))
 	.catch(err => console.log(`No interactions were collected.`));
 ```

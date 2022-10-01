@@ -17,48 +17,28 @@ Discord allows developers to register [slash commands](https://discord.com/devel
 
 ## Registering commands
 
-This section will cover only the bare minimum to get you started, but you can refer to our [in-depth page on registering slash commands](/interactions/registering-slash-commands.md) for further details. It covers guild commands, global commands, options, option types, and choices.
+This section will cover only the bare minimum to get you started, but you can refer to our [in-depth page on registering slash commands](/interactions/slash-commands.md#registering-slash-commands) for further details. It covers guild commands, global commands, options, option types, and choices.
 
 ### Command deployment script
 
 Create a `deploy-commands.js` file in your project directory. This file will be used to register and update the slash commands for your bot application.
 
-You'll need to install [`@discordjs/builders`](https://github.com/discordjs/discord.js/tree/main/packages/builders), [`@discordjs/rest`](https://github.com/discordjs/discord.js/tree/main/packages/rest), and [`discord-api-types`](https://github.com/discordjs/discord-api-types/).
-
-:::: code-group
-::: code-group-item npm
-```sh:no-line-numbers
-npm install @discordjs/builders @discordjs/rest discord-api-types
-```
-:::
-::: code-group-item yarn
-```sh:no-line-numbers
-yarn add @discordjs/builders @discordjs/rest discord-api-types
-```
-:::
-::: code-group-item pnpm
-```sh:no-line-numbers
-pnpm add @discordjs/builders @discordjs/rest discord-api-types
-```
-:::
-::::
+Since commands only need to be registered once, and updated when the definition (description, options etc) is changed, it's not necessary to connect a whole client to the gateway or do this on every `ready` event. As such, a standalone script using the lighter REST manager is preferred.
 
 Below is a deployment script you can use. Focus on these variables:
 
-- `clientId`: Your client's id
+- `clientId`: Your application's client id
 - `guildId`: Your development server's id
-- `commands`: An array of commands to register. The [slash command builder](/popular-topics/builders.md#slash-command-builders) from `@discordjs/builders` is used to build the data for your commands
+- `commands`: An array of commands to register. The [slash command builder](/popular-topics/builders.md#slash-command-builders) from `discord.js` is used to build the data for your commands
 
 ::: tip
-In order to get your client and guild ids, open Discord and go to your settings. On the "Advanced" page, turn on "Developer Mode". This will enable a "Copy ID" button in the context menu when you right-click on a server icon, a user's profile, etc.
+In order to get your application's client id, go to [Discord Developer Portal](https://discord.com/developers/applications) and choose your application. Find the id under "Application ID" in General Information subpage. To get guild id, open Discord and go to your settings. On the "Advanced" page, turn on "Developer Mode". This will enable a "Copy ID" button in the context menu when you right-click on a server icon, a user's profile, etc.
 :::
 
 :::: code-group
 ::: code-group-item deploy-commands.js
 ```js{4,6-11}
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
+const { REST, SlashCommandBuilder, Routes } = require('discord.js');
 const { clientId, guildId, token } = require('./config.json');
 
 const commands = [
@@ -68,10 +48,10 @@ const commands = [
 ]
 	.map(command => command.toJSON());
 
-const rest = new REST({ version: '9' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(token);
 
 rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-	.then(() => console.log('Successfully registered application commands.'))
+	.then((data) => console.log(`Successfully registered ${data.length} application commands.`))
 	.catch(console.error);
 ```
 :::
@@ -86,7 +66,7 @@ rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
 :::
 ::::
 
-Once you fill in these values, run `node deploy-commands.js` in your project directory to register your commands to a single guild. It's also possible to [register commands globally](/interactions/registering-slash-commands.md#global-commands).
+Once you fill in these values, run `node deploy-commands.js` in your project directory to register your commands to a single guild. It's also possible to [register commands globally](/interactions/slash-commands.md#global-commands).
 
 ::: tip
 You only need to run `node deploy-commands.js` once. You should only run it again if you add or edit existing commands.
@@ -96,7 +76,7 @@ You only need to run `node deploy-commands.js` once. You should only run it agai
 
 Once you've registered your commands, you can listen for interactions via <DocsLink path="class/Client?scrollTo=e-interactionCreate" /> in your `index.js` file.
 
-You should first check if an interaction is a command via <DocsLink path="class/Interaction?scrollTo=isCommand" type="method">`.isCommand()`</DocsLink>, and then check the <DocsLink path="class/CommandInteraction?scrollTo=commandName">`.commandName`</DocsLink> property to know which command it is. You can respond to interactions with <DocsLink path="class/CommandInteraction?scrollTo=reply">`.reply()`</DocsLink>.
+You should first check if an interaction is a chat input command via <DocsLink path="class/Interaction?scrollTo=isChatInputCommand" type="method">`.isChatInputCommand()`</DocsLink>, and then check the <DocsLink path="class/CommandInteraction?scrollTo=commandName">`.commandName`</DocsLink> property to know which command it is. You can respond to interactions with <DocsLink path="class/CommandInteraction?scrollTo=reply">`.reply()`</DocsLink>.
 
 ```js {5-17}
 client.once('ready', () => {
@@ -104,7 +84,7 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 
@@ -126,7 +106,7 @@ Note that servers are referred to as "guilds" in the Discord API and discord.js 
 
 ```js {9}
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 
@@ -145,13 +125,13 @@ client.on('interactionCreate', async interaction => {
 		<template #interactions>
 			<DiscordInteraction profile="user" :command="true">server</DiscordInteraction>
 		</template>
-		Server name: Discord.js Guide
+		Server name: discord.js Guide
 		<br />
 		Total members: 2
 	</DiscordMessage>
 </DiscordMessages>
 
-You could also display the date the server was created, or the server's verification level. You would do those in the same manner–use `interaction.guild.createdAt` or `interaction.guild.verificationLevel`, respectively.
+You could also display the date the server was created, or the server's verification level. You would do those in the same manner – use `interaction.guild.createdAt` or `interaction.guild.verificationLevel`, respectively.
 
 ::: tip
 Refer to the <DocsLink path="class/Guild" /> documentation for a list of all the available properties and methods!
@@ -163,7 +143,7 @@ A "user" refers to a Discord user. `interaction.user` refers to the user the int
 
 ```js {11}
 client.on('interactionCreate', async interaction => {
-	if (!interaction.isCommand()) return;
+	if (!interaction.isChatInputCommand()) return;
 
 	const { commandName } = interaction;
 
@@ -207,7 +187,7 @@ Here's a small list of reasons why you shouldn't do so:
 * Difficult to organize;
 * General bad practice.
 
-Next, we'll be diving into something called a "command handler"–code that makes handling commands easier and much more efficient. This allows you to move your commands into individual files.
+Next, we'll be diving into something called a "command handler" – code that makes handling commands easier and much more efficient. This allows you to move your commands into individual files.
 
 ## Resulting code
 
